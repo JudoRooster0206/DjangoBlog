@@ -1,0 +1,20 @@
+from django.db import models
+from django.contrib.auth.models import User
+from PIL import Image
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)#Has a one to one relationship with user
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+# Create your models here.
+    def save(self): #Method that saves, we make our ownself.
+        super().save() #Super runs the original save method
+        #Now we grab image and shorten it to save space.
+        img = Image.open(self.image.path) #opens the saved image
+
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.image.path) #puts image at same path
